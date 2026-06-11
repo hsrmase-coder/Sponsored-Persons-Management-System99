@@ -54,25 +54,23 @@ app.use(securityHeaders);
 const corsOptions = {
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    
+
+    // السماح لجميع نطاقات Vercel
+    if (origin.endsWith('.vercel.app')) return callback(null, true);
+
     const allowedOrigins = process.env.NODE_ENV === 'production'
-      ? [
-          process.env.CORS_ORIGIN,
-          process.env.CORS_ORIGIN_2,
-          // Vercel domains
-          /^https:\/\/.*\.vercel\.app$/,
-        ].filter(Boolean)
+      ? [process.env.CORS_ORIGIN, process.env.CORS_ORIGIN_2].filter(Boolean)
       : [
           'http://localhost:3000',
           'http://127.0.0.1:3000',
           /^http:\/\/192\.168\.\d{1,3}\.\d{1,3}:3000$/
         ];
-    
+
     const isAllowed = allowedOrigins.some(allowed => {
       if (allowed instanceof RegExp) return allowed.test(origin);
       return allowed === origin;
     });
-    
+
     if (isAllowed) {
       callback(null, true);
     } else {
